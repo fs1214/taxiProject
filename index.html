@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<style>
+
+@import url(http://fonts.googleapis.com/css?family=PT+Serif|PT+Serif:b|PT+Serif:i);
+
+section {
+  background: #1f1f1f;
+  color: #fff;
+  padding: 2em;
+  font-family: "PT Serif", Baskerville, Georgia;
+}
+
+#follow {
+  background: none;
+}
+
+.grey {
+  color: #777;
+}
+
+.accent {
+  color: rgb(107,174,214);
+}
+
+
+.counties {
+fill: none;
+stroke: #1f1f1f;
+stroke-linejoin: round;
+}
+
+.q0-9 { fill:rgb(247,251,255); }
+.q1-9 { fill:rgb(222,235,247); }
+.q2-9 { fill:rgb(198,219,239); }
+.q3-9 { fill:rgb(158,202,225); }
+.q4-9 { fill:rgb(107,174,214); }
+.q5-9 { fill:rgb(66,146,198); }
+.q6-9 { fill:rgb(33,113,181); }
+.q7-9 { fill:rgb(8,81,156); }
+.q8-9 { fill:rgb(8,48,107); }
+
+rect.bordered {
+stroke: #1f1f1f;
+stroke-width:2px;
+}
+
+text.mono {
+font-size: 9pt;
+font-family: Consolas, courier;
+fill: #505050;
+}
+
+text.axis-workweek {
+fill: #fff;
+}
+
+text.axis-worktime {
+fill: #fff;
+}
+
+.barf{
+fill: rgb(33,113,181);
+}
+
+.axis {
+font: 13px sans-serif;
+stroke: #fff;
+}
+
+.axis path,
+.axis line {
+fill: none;
+stroke: #fff;
+shape-rendering: crispEdges;
+}
+
+.x.axis path {
+display: none;
+}
+
+#circle circle {
+fill: none;
+pointer-events: all;
+}
+
+.group path {
+fill-opacity: .5;
+}
+
+path.chord {
+stroke: #000;
+stroke-width: .25px;
+}
+
+#circle:hover path.fade {
+display: none;
+}
+
+</style>
+
+<section style="text-align:center;padding-top:5em;">
+  <p style="font-size:120%;"><b>A Study on NYC Taxi Tipping Behavior</b></p>
+  <br><br>
+  <p stype="font-size:80%;"><b class="accent">Team .XLS</b><br>Yijun Xiao<br>Wenying Liu<br>Fangyun Sun</p>
+</section>
+
+<section id="tip-dist" style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">General Facts</p>
+  <div id="dist-chart" style="font-size:50%;"></div>
+  <p><b style="font-size:120%" class="accent">52</b>% passengers leave tips,<br>Most tip percentages fall in <b class="accent">10</b>% ~ <b class="accent">30</b>%.</p>
+</section>
+
+<section id="anormaly" style="padding:5em 9em;">
+  <p>Tip percentage <b id="digit1" style="font-size:120%" class="accent"></b>%</p>
+  <p class="grey">What is going on?</p>
+</section>
+
+<section style="padding:5em 9em;">
+  <p>Tip percentage <b style="font-size:120%" class="accent">7200</b>%</p>
+  <p>Trip time <b>43</b> min<br>Fare amount <b>¢1</b><br>Tip amount <b>$72</b></p>
+  <p class="grey">Bad data / missing values?</p>
+</section>
+
+<section id="outline" style="text-align:center;padding-top:5em">
+  <p><b id="text1"></b>
+  <p><b id="text2"></b>
+  <p><b id="text3"></b>
+  <p><b id="text4"></b>
+  <p><b id="text5"></b>
+</section>
+
+<section style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">Payment Type</p>
+  <div style="float:left;padding-left:7em;padding-top:1em;">
+    <p><b>Credit Card</b></p>
+    <br>
+    <p><b class="accent" style="font-size:200%">93</b> million</p>
+    <p><b class="accent" style="font-size:200%">19.1</b>%</p>
+  </div>
+  
+  <div style="float:right;padding-right:7em;padding-top:1em;">
+    <p><b>Cash</b></p>
+    <br>
+    <p><b class="accent" style="font-size:200%">79</b> million</p>
+    <p><b class="accent" style="font-size:200%">0.0</b>%</p>
+  </div>
+</section>
+
+<section style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">Payment Type</p>
+  <div style="float:left;padding-left:7em;padding-top:1em;">
+    <p><b>Credit Card</b></p>
+    <br>
+    <p><b class="accent" style="font-size:200%">90</b> million</p>
+    <p><b class="accent" style="font-size:200%">19.9</b>%</p>
+  </div>
+  
+  <div style="float:right;padding-right:7em;padding-top:1em;">
+    <p><b>Cash</b></p>
+    <br>
+    <p><b class="accent" style="font-size:200%">6681</b></p>
+    <p><b class="accent" style="font-size:200%">22.6</b>%</p>    
+  </div>
+  
+</section>
+  
+<section id="tip-loc" style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">Pickup Location</p>  
+  <div style="float:left;padding-left:2em;padding-top:2em;text-align:left">
+    <p>Among all neighborhoods,<br>passengers picked up at <b class="accent">College Point</b><br>gave highest tips <b class="accent" style="font-size:120%">19.13</b>%.<br>Followed by <b>Corona</b>, <b>Cobble Hill</b>,<br>and <b>Carrol Gardens</b>.</p>
+  </div>
+  <div id="loc-chart" style="font-size:50%;float:right;"></div>
+</section>
+
+<section id="loc-pair" style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">Location Pairs</p>  
+  <div id="loc-pair-chart" style="font-size:50%;"></div>
+  <p style="font-size:80%"><b style="color:#6baed6">Blue</b>:Lower Manhattan, <b style="color:#ffa24c">Orange</b>:Midtown, <b style="color:#ff96ca">Pink</b>:Central Park,<br><b style="color:#36994d">Green</b>:Upper Manhattan, <b style="color:#553f72">Purple</b>:Brooklyn, <b style="color:#fff3db">Beige</b>:Queens</p>
+</section>
+
+<section id="hour" style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">Time</p>  
+  <div id="hour-chart" style="font-size:50%;padding-top:1em"></div>
+</section>
+
+<section id="day-hour" style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">Time</p>  
+  <div id="day-hour-chart" style="font-size:50%;padding-top:1em"></div>
+</section>
+
+<section id="prec" style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">Weather - Precipitation</p>
+  <div id="prec-chart" style="font-size:50%;padding-top:1em"></div>  
+</section>
+
+<section id="temp" style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">Weather - Temperature</p>
+  <div id="temp-chart" style="font-size:50%;padding-top:1em"></div>  
+</section>
+
+<section id="travel-dist" style="text-align:center;padding:.35em;">
+  <p style="font-size:80%">Travel Distance</p>
+  <div id="travel-dist-chart" style="font-size:50%;padding-top:1em;padding-left:3em;float:left"></div>
+  <div style="padding-top:3em;padding-right:3em;float:right;text-align:left"><p>X: trip distance 0 ~ 49 miles</p>
+    <p>Y: tip percentage 1% ~ 40%</p></div>
+</section>
+
+<section style="text-align:center;padding-top:1em;font-size:100%">
+  <p>Acknowledgement</p>
+  <br><br>
+  <p>We thank <b class="accent">Amazon</b> for their support on computing resources<br>and Prof. <b class="accent">Juliana Freire</b> for the insightful instructions.</p>
+</section>
+
+<section style="text-align:center;padding-top:0.5em;font-size:300%">
+  <p><br><b class="accent">Thank you!</b></p>
+</section>
+
+<script src="d3.v3.min.js"></script>
+<script src="stack.v1.min.js"></script>
+<script>
+
+  var mystack = stack()
+  .on("activate", activate)
+  .on("deactivate", deactivate);
+
+  var section = d3.selectAll("section"),
+  follow = d3.select("#follow"),
+  followAnchor = d3.select("#follow-anchor"),
+  tipDist = d3.select("#tip-dist"),
+  tipLoc = d3.select("#tip-loc"),
+  locPair = d3.select("#loc-pair"),  
+  dayHour = d3.select("#day-hour"),
+  hour = d3.select("#hour"),
+  prec = d3.select("#prec"),
+  temp = d3.select("#temp"),
+  travelDist = d3.select("#travel-dist"),  
+  anormaly = d3.select("#anormaly"),
+  outline = d3.select("#outline"),
+  followIndex = section[0].indexOf(follow.node()),
+  anormalyIndex = section[0].indexOf(anormaly.node()),
+  outlineIndex = section[0].indexOf(outline.node()),
+  tipLocIndex = section[0].indexOf(tipLoc.node()),
+  locPairIndex = section[0].indexOf(locPair.node()),
+  tipDistIndex = section[0].indexOf(tipDist.node()),
+  precIndex = section[0].indexOf(prec.node()),
+  tempIndex = section[0].indexOf(temp.node()),
+  travelDistIndex = section[0].indexOf(travelDist.node()),  
+  hourIndex = section[0].indexOf(hour.node()),  
+  dayHourIndex = section[0].indexOf(dayHour.node());
+
+  var texts = ["Payment Type", "Pickup/Dropoff Location", "Time", "Weather", "Travel Distance",],
+  outlineids = ["#text1", "#text2", "#text3", "#text4", "#text5"];
+  
+  function refollow() {
+  followAnchor.style("top", (followIndex + (1 - mystack.scrollRatio()) / 2 - d3.event.offset) * 100 + "%");
+  }
+
+  function activate(d, i) {
+  if (i === followIndex) mystack.on("scroll.follow", refollow);
+  if (i === tipDistIndex) startTipDist();
+  if (i === tipLocIndex) startTipLoc();
+  if (i === locPairIndex) startLocPair();  
+  if (i === dayHourIndex) startDayHourMap();
+  if (i === hourIndex) startHourBar();
+  if (i === precIndex) startPrecBar();
+  if (i === tempIndex) startTempBar();
+  if (i === travelDistIndex) startTravelDist();  
+  if (i === anormalyIndex) start7200("#digit1", 1000, 7200, 720);
+  if (i === outlineIndex) startTyping(outlineids, texts);
+  }
+  
+  function deactivate(d, i) {
+  if (i === followIndex) mystack.on("scroll.follow", null);
+  if (i === tipDistIndex) stopCharts("#dist-chart");
+  if (i === tipLocIndex) stopCharts("#loc-chart");
+  if (i === locPairIndex) stopCharts("#loc-pair-chart");
+  if (i === dayHourIndex) stopCharts("#day-hour-chart");
+  if (i === hourIndex) stopCharts("#hour-chart");
+  if (i === precIndex) stopCharts("#prec-chart");
+  if (i === tempIndex) stopCharts("#temp-chart");
+  if (i === travelDistIndex) stopCharts("#travel-dist-chart");    
+  if (i === outlineIndex) clearContents(outlineids);
+  }
+
+  function clearContents(ids) {
+  ids.forEach(function(id, index, array) {
+  d3.select(id).interrupt().transition().text("");
+  });
+  }
+
+  function startTyping(ids, data) {
+
+  var delay = 700;
+  ids.forEach(function(id, index, array) {
+  var duration = data[index].length * 20;
+  d3.select(id).transition()
+  .delay(delay)
+  .duration(duration)
+  .ease("cubic-in-out")
+  .tween("text", function () {
+  var newText = data[index];
+  var textLength = newText.length;
+  return function (t) {
+  this.textContent = newText.substr(0,
+  Math.round( t * textLength) );
+  };
+  });
+  delay = delay + duration + 700;
+  });
+  }
+
+  function startTravelDist() {
+  
+  var margin = { top: 50, right: 0, bottom: 100, left: 30 },
+  width = 480 - margin.left - margin.right,
+  height = 600 - margin.top - margin.bottom,
+  gridSize = Math.floor(width / 50),
+  buckets = 8,
+  colors = ["#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306B"];
+  
+  d3.csv("tippct_dist.csv",
+  function(d) {
+  return {
+  pct: +d.pct,
+  dist: +d.dist,
+  value: +d.value
+  };
+  },
+  function(error, data) {
+  var colorScale = d3.scale.quantile()
+  .domain([0, buckets - 1, d3.max(data, function (d) { return d.value; })])
+  .range(colors);
+
+  var svg = d3.select("#travel-dist-chart").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var heatMap = svg.selectAll(".hour")
+  .data(data)
+  .enter().append("rect")
+  .attr("x", function(d) { return (d.dist - 1) * gridSize; })
+  .attr("y", function(d) { return (d.pct - 1) * gridSize; })
+  .attr("rx", 4)
+  .attr("ry", 4)
+  .attr("class", "hour")
+  .attr("width", gridSize)
+  .attr("height", gridSize)
+  .style("fill", colors[0]);
+
+  heatMap.transition().duration(1000)
+  .style("fill", function(d) { return colorScale(d.value); });
+  heatMap.append("title").text(function(d) { return d.value; });
+
+  });
+  }
+  
+							  
+  
+  function startTempBar() {
+  var margin = {top: 20, right: 20, bottom: 60, left: 40},
+  width = 960 - margin.left - margin.right,
+  height = 500 - margin.top - margin.bottom;
+
+  var x0 = d3.scale.ordinal()
+  .rangeRoundBands([0, width], .1);
+
+  var x1 = d3.scale.ordinal();
+
+  var y = d3.scale.linear()
+  .range([height, 0]);
+
+  var color = d3.scale.ordinal()
+  .range(["#C6DBEF",  "#6BAED6","#2171B5"]);
+
+  var xAxis = d3.svg.axis()
+  .scale(x0)
+  .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+  .scale(y)
+  .orient("left");
+
+  var svg = d3.select("#temp-chart").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.csv("temp_tip.csv", function(error, data) {
+  var freqNames = d3.keys(data[0]).filter(function(key) { return key !== "tip"; });
+
+  data.forEach(function(d) {
+  d.freqs = freqNames.map(function(name) { return {name: name, value: +d[name]}; });
+  });
+
+  x0.domain(data.map(function(d) { return d.tip; }));
+  x1.domain(freqNames).rangeRoundBands([0, x0.rangeBand()]);
+  y.domain([0, d3.max(data, function(d) { return d3.max(d.freqs, function(d) { return d.value; }); })]);
+
+  svg.append("g")
+  .attr("class", "x axis")
+  .attr("transform", "translate(0," + height + ")")
+  .call(xAxis)
+  .selectAll("text")
+  .style("text-anchor", "end")
+  .attr("dx", "-.8em")
+  .attr("dy", "0.2em")
+  .attr("transform", function(d) {
+  return "rotate(-65)"
+  });
+
+  svg.append("g")
+  .attr("class", "y axis")
+  .call(yAxis)
+  .append("text")
+  .attr("transform", "rotate(-90)")
+  .attr("y", 3)
+  .attr("dy", ".71em")
+  .style("text-anchor", "end")
+  .text("frequency");
+
+
+  var tip = svg.selectAll(".tip")
+  .data(data)
+  .enter().append("g")
+  .attr("class", "g")
+  .attr("transform", function(d) { return "translate(" + x0(d.tip) + ",0)"; });
+
+  tip.selectAll("rect")
+  .data(function(d) { return d.freqs; })
+  .enter().append("rect")
+  .attr("width", x1.rangeBand())
+  .attr("x", function(d) { return x1(d.name); })
+  .attr("y", function(d) { return y(d.value); })
+  .attr("height", 0)
+  .transition()
+  .delay(function (d,i) { return i*500; })
+  .attr("height", function(d) { return height - y(d.value); })
+  .style("fill", function(d) { return color(d.name); });
+
+  var legend = svg.selectAll(".legend")
+  .data(freqNames.slice().reverse())
+  .enter().append("g")
+  .attr("class", "legend")
+  .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  legend.append("rect")
+  .attr("x", width - 18)
+  .attr("width", 18)
+  .attr("height", 18)
+  .style("fill", color);
+
+  legend.append("text")
+  .attr("x", width - 24)
+  .attr("y", 9)
+  .attr("dy", ".35em")
+  .style("text-anchor", "end")
+  .style("fill", "#fff")
+  .text(function(d) { return d; });
+
+  });
+  
+  }
+  
+  function startPrecBar() {
+  var margin = {top: 20, right: 20, bottom: 60, left: 40},
+  width = 960 - margin.left - margin.right,
+  height = 500 - margin.top - margin.bottom;
+
+  var x0 = d3.scale.ordinal()
+  .rangeRoundBands([0, width], .1);
+
+  var x1 = d3.scale.ordinal();
+
+  var y = d3.scale.linear()
+  .range([height, 0]);
+
+  var color = d3.scale.ordinal()
+  .range(["#C6DBEF",  "#4292C6"]);
+
+  var xAxis = d3.svg.axis()
+  .scale(x0)
+  .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+  .scale(y)
+  .orient("left");
+
+  var svg = d3.select("#prec-chart").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.csv("prec_tip.csv", function(error, data) {
+  var freqNames = d3.keys(data[0]).filter(function(key) { return key !== "tip"; });
+
+  data.forEach(function(d) {
+  d.freqs = freqNames.map(function(name) { return {name: name, value: +d[name]}; });
+  });
+
+  x0.domain(data.map(function(d) { return d.tip; }));
+  x1.domain(freqNames).rangeRoundBands([0, x0.rangeBand()]);
+  y.domain([0, d3.max(data, function(d) { return d3.max(d.freqs, function(d) { return d.value; }); })]);
+
+  svg.append("g")
+  .attr("class", "x axis")
+  .attr("transform", "translate(0," + height + ")")
+  .call(xAxis)
+  .selectAll("text")
+  .style("text-anchor", "end")
+  .attr("dx", "-.8em")
+  .attr("dy", "0.2em")
+  .attr("transform", function(d) {
+  return "rotate(-65)"
+  });
+
+  svg.append("g")
+  .attr("class", "y axis")
+  .call(yAxis)
+  .append("text")
+  .attr("transform", "rotate(-90)")
+  .attr("y", 3)
+  .attr("dy", ".71em")
+  .style("text-anchor", "end")
+  .text("frequency");
+  
+  var tip = svg.selectAll(".tip")
+  .data(data)
+  .enter().append("g")
+  .attr("class", "g")
+  .attr("transform", function(d) { return "translate(" + x0(d.tip) + ",0)"; });
+
+  tip.selectAll("rect")
+  .data(function(d) { return d.freqs; })
+  .enter().append("rect")
+  .attr("width", x1.rangeBand())
+  .attr("x", function(d) { return x1(d.name); })
+  .attr("y", function(d) { return y(d.value); })
+  .attr("height", 0)
+  .transition()
+  .delay(function (d,i) { return i*500; })
+  .attr("height", function(d) { return height - y(d.value); })
+  .style("fill", function(d) { return color(d.name); });
+
+  var legend = svg.selectAll(".legend")
+  .data(freqNames.slice().reverse())
+  .enter().append("g")
+  .attr("class", "legend")
+  .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  legend.append("rect")
+  .attr("x", width - 18)
+  .attr("width", 18)
+  .attr("height", 18)
+  .style("fill", color);
+
+  legend.append("text")
+  .attr("x", width - 24)
+  .attr("y", 9)
+  .attr("dy", ".35em")
+  .style("text-anchor", "end")
+  .style("fill", "#fff")
+  .text(function(d) { return d; });
+
+  });
+  }
+  
+  function startLocPair() {
+  var width = 480,
+  height = 480,
+  outerRadius = Math.min(width, height) / 2 - 10,
+  innerRadius = outerRadius - 24;
+
+  var arc = d3.svg.arc()
+  .innerRadius(innerRadius)
+  .outerRadius(outerRadius);
+
+  var layout = d3.layout.chord()
+  .padding(.04)
+  .sortSubgroups(d3.descending)
+  .sortChords(d3.ascending);
+
+  var path = d3.svg.chord()
+  .radius(innerRadius);
+
+  var svg = d3.select("#loc-pair-chart").append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .append("g")
+  .attr("id", "circle")
+  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+  svg.append("circle")
+  .attr("r", outerRadius);
+
+  d3.csv("cities.csv", function(cities) {
+  d3.json("matrix.json", function(matrix) {
+
+  // Compute the chord layout.
+  layout.matrix(matrix);
+
+  // Add a group per neighborhood.
+  var group = svg.selectAll(".group")
+  .data(layout.groups)
+  .enter().append("g")
+  .attr("class", "group")
+  .on("mouseover", mouseover);
+
+  // Add a mouseover title.
+  group.append("title").text(function(d, i) {
+  return cities[i].name + ": " + Math.round(d.value) + " of origins";
+  });
+
+  // Add the group arc.
+  var groupPath = group.append("path")
+  .attr("id", function(d, i) { return "group" + i; })
+  .attr("d", arc)
+  .style("fill", function(d, i) { return cities[i].color; });
+
+  // Add a text label.
+  var groupText = group.append("text")
+  .attr("x", 6)
+  .attr("dy", 15);
+
+  groupText.append("textPath")
+  .attr("xlink:href", function(d, i) { return "#group" + i; })
+  .text(function(d, i) { return cities[i].name; })
+  .style("fill", "#1f1f1f");
+
+  // Remove the labels that don't fit. :(
+  groupText.filter(function(d, i) { return groupPath[0][i].getTotalLength() / 2 - 16 < this.getComputedTextLength(); })
+				      .remove();
+
+  // Add the chords.
+  var chord = svg.selectAll(".chord")
+  .data(layout.chords)
+										       .enter().append("path")
+										       .attr("class", "chord")
+										       .style("fill", function(d) { return cities[d.source.index].color; })
+										       .attr("d", path);
+
+										       // Add an elaborate mouseover title for each chord.
+										       chord.append("title").text(function(d) {
+										       return cities[d.source.index].name + " → " + cities[d.target.index].name + ": " + Math.round(d.source.value) + "\n" + cities[d.target.index].name + " → " + cities[d.source.index].name + ": " + d.target.value;
+});
+
+				function mouseover(d, i) {
+				chord.classed("fade", function(p) {
+				return p.source.index != i
+				&& p.target.index != i;
+										       });
+										       }
+										       });
+										       });
+										       }
+  
+  function startHourBar() {
+  
+  var margin = {top: 20, right: 20, bottom: 60, left: 40},
+  width = 800 - margin.left - margin.right,
+  height = 350 - margin.top - margin.bottom;
+
+  var x = d3.scale.ordinal()
+  .rangeRoundBands([0, width], .25);
+
+  var y = d3.scale.linear()
+  .range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+  .scale(x)
+  .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+  .scale(y)
+  .orient("left")
+  .ticks(7)
+  .tickFormat(function(d){return d + "%";});
+
+  var svg = d3.select("#hour-chart").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.csv("alltime_tip_modified.csv", type, function(error, data) {
+  x.domain(data.map(function(d) { return d.time; }));
+  y.domain([5, d3.max(data, function(d) { return d.percentage; })]);
+
+  svg.append("g")
+  .attr("class", "x axis")
+  .attr("transform", "translate(0," + height + ")")
+  .call(xAxis)
+  .selectAll("text")
+  .style("text-anchor", "end")
+  .attr("dx", "-.8em")
+  .attr("dy", "0.2em")
+  .attr("transform", function(d) {
+  return "rotate(-65)"
+  });
+
+  svg.append("g")
+  .attr("class", "y axis")
+  .call(yAxis)
+  .append("text")
+  .attr("transform", "rotate(-90)")
+  .attr("y", 3)
+  .attr("dy", ".71em")
+  .style("text-anchor", "end")
+  .text("Tip Percentage");
+
+  svg.selectAll(".bar")
+  .data(data)
+  .enter().append("rect")
+  .attr("class", "bar")
+  .attr("x", function(d) { return x(d.time); })
+  .attr("width", x.rangeBand())
+  .attr("y",  height)
+  .attr("height", 0)
+  .transition()
+  .delay(function (d,i) { return i*100; })
+  .attr("y", function(d) { return  y(d.percentage); })
+  .attr("height", function(d) { return height -y(d.percentage); })
+  .style("fill","#4292c6");
+
+  });
+
+  function type(d) {
+  d.percentage = +d.percentage;
+  return d;
+  }
+  
+  }
+  
+  function startDayHourMap() {
+  var margin = { top: 50, right: 0, bottom: 100, left: 30 },
+  width = 960 - margin.left - margin.right,
+  height = 430 - margin.top - margin.bottom,
+  gridSize = Math.floor(width / 24),
+  legendElementWidth = gridSize*2,
+  buckets = 9,
+  //colors = ["#fff1e5","#ffe4cc","#ffd7b2","#ffc999","#ffbc7f","#ffaf66","#ffa24c","#ff9433","#ff8719"],
+  colors = ["#f7fbff","#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306B"],
+  days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+  times = ["1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a", "12a", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p", "12p"];
+
+  d3.csv("daytimetippct.csv",
+  function(d) {
+  return {
+  day: +d.day,
+  hour: +d.hour,
+  value: +d.value
+  };
+  },
+  function(error, data) {
+  var colorScale = d3.scale.quantile()
+  .domain([0, buckets - 1, d3.max(data, function (d) { return d.value; })])
+  .range(colors);
+
+  var svg = d3.select("#day-hour-chart").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var dayLabels = svg.selectAll(".dayLabel")
+  .data(days)
+  .enter().append("text")
+  .text(function (d) { return d; })
+  .attr("x", 0)
+  .attr("y", function (d, i) { return i * gridSize; })
+  .style("text-anchor", "end")
+  .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
+  .attr("class", function (d, i) { return ((i >= 0 && i <= 4) ? "dayLabel mono axis axis-workweek" : "dayLabel mono axis"); });
+
+  var timeLabels = svg.selectAll(".timeLabel")
+  .data(times)
+  .enter().append("text")
+  .text(function(d) { return d; })
+  .attr("x", function(d, i) { return i * gridSize; })
+  .attr("y", 0)
+  .style("text-anchor", "middle")
+  .attr("transform", "translate(" + gridSize / 2 + ", -6)")
+  .attr("class", function(d, i) { return ((i >= 7 && i <= 16) ? "timeLabel mono axis axis-worktime" : "timeLabel mono axis"); });
+														   
+   var heatMap = svg.selectAll(".hour")
+   .data(data)
+   .enter().append("rect")
+   .attr("x", function(d) { return (d.hour - 1) * gridSize; })
+   .attr("y", function(d) { return (d.day - 1) * gridSize; })
+   .attr("rx", 4)
+   .attr("ry", 4)
+   .attr("class", "hour bordered")
+   .attr("width", gridSize)
+   .attr("height", gridSize)
+   .style("fill", colors[0]);
+
+   heatMap.transition().duration(1000)
+   .style("fill", function(d) { return colorScale(d.value); });
+   heatMap.append("title").text(function(d) { return d.value; });
+
+   var legend = svg.selectAll(".legend")
+   .data([0].concat(colorScale.quantiles()), function(d) { return d; })
+   .enter().append("g")
+   .attr("class", "legend");
+
+   legend.append("rect")
+   .attr("x", function(d, i) { return legendElementWidth * i; })
+   .attr("y", height)
+   .attr("width", legendElementWidth)
+   .attr("height", gridSize / 2)
+   .style("fill", function(d, i) { return colors[i]; });
+
+   legend.append("text")
+   .attr("class", "mono")
+   .text(function(d) { return "≥ " + Math.round(d); })
+   .attr("x", function(d, i) { return legendElementWidth * i; })
+   .attr("y", height + gridSize);
+														   });
+  }
+  
+  function start7200(id, start_val, end_val, duration) {
+
+  d3.select(id)
+  .text(start_val)
+  .transition()
+  .duration(duration)
+  .ease('linear')
+  .tween("text", function() {
+  var i = d3.interpolate(this.textContent, end_val);
+  return function(t) {
+  this.textContent = Math.round(i(t));
+  };
+    });
+  }
+  
+  function startTipDist() {
+  var data = [ {name: "No tips", value: 47.7},
+  {name: "<10%", value:  4.8},
+	       {name: "10-20%", value:  22.5},
+			      {name: "20-30%", value:  22.4},
+					     {name: ">30%", value:  2.6} ];
+
+    var margin = {top: 20, right: 20, bottom: 20, left: 20};
+    width = 400 - margin.left - margin.right;
+    height = width - margin.top - margin.bottom;
+
+    var chart = d3.select("#dist-chart")
+    .append('svg')
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + ((width/2)+margin.left) + "," + ((height/2)+margin.top) + ")");
+
+    var radius = Math.min(width, height) / 2;
+
+    var color = d3.scale.ordinal()
+    .range(["#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#08519c"]);
+							  //colors = ["#f7fbff","#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306B"],
+							  
+    var arc = d3.svg.arc()
+    .outerRadius(radius - 20)
+    .innerRadius(radius - 90);
+
+    var pie = d3.layout.pie()
+    .sort(null)
+    .startAngle(1.1*Math.PI)
+    .endAngle(3.1*Math.PI)
+    .value(function(d) { return d.value; });
+
+    var g = chart.selectAll(".arc")
+    .data(pie(data))
+    .enter().append("g")
+    .attr("class", "arc");
+
+    g.append("path")
+    .attr("fill", function(d, i) { return color(i); })
+    .transition()
+    .ease("linear")
+    .duration(1000)
+    .attrTween("d", tweenPie);
+
+    g.append("text")
+    .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+    .attr("dy", ".35em")
+    .attr("fill", "#1f1f1f")
+    .attr("font-family", "\"PT Serif\", Baskerville, Georgia")
+    .style("text-anchor", "middle")
+    .text(function(d) { return d.data.name; });
+    
+    function tweenPie(b) {
+    var i = d3.interpolate({startAngle: 1.1*Math.PI, endAngle: 1.1*Math.PI}, b);
+    return function(t) { return arc(i(t)); };
+    }
+    }
+
+    function stopCharts(id) {
+    d3.select(id).select("svg").remove();
+    }
+    
+    function startTipLoc() {
+    
+    var width  = 500;
+    var height = 600;
+
+    var rateById = {};
+
+    var svg = d3.select("#loc-chart").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(0,0)");
+
+    var projection = d3.geo.mercator()
+    .center([-73.94, 40.70])
+    .scale(48000)
+    .translate([width / 2, height / 2]);
+
+    var path = d3.geo.path()
+    .projection(projection);
+
+    var quantize = d3.scale.quantize()
+    .domain([0, 0.15])
+    .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
+
+    d3.csv("result1.csv", function(error, counties) {
+    counties.forEach(function(d) {
+    rateById[d.NAME] = +d.rate;
+    });
+    });
+
+    d3.json("nyc1.json", function(error, root) {
+
+    if (error)
+    return console.error(error);
+    console.log(root.features);
+
+    svg.selectAll("path").data(root.features)
+    .enter()
+    .append("path")
+    .attr("stroke","#000")
+    .attr("stroke-width",1)
+    .attr("d", path )
+    .attr("class",function(root){return quantize(rateById[root.properties.NAME])})
+
+
+    });
+    }
+</script>
